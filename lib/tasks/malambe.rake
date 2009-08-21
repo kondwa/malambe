@@ -13,11 +13,11 @@ namespace :malambe do
       raise "SQL Schema file #{@schema} does not exist" unless File.exist?(@schema)
       puts "Supply MySQL Root password on prompt:"
       @rtpass = STDIN.gets.chomp
-
-      `mysqladmin create #{@database} -u root --password=#{@rtpass}`
+      puts "Creating malambe database..."
+      `mysql -u root --password=#{@rtpass} -e "CREATE DATABASE IF NOT EXISTS #{@database};"`
+      puts "Loading sql schema file..."
       `mysql -u root --password=#{@rtpass} #{@database} < #{@schema}`
-      `mysql -u root --password=#{@rtpass}-e "GRANT ALL ON #{@database}.* TO #{@username}@localhost" IDENTIFIED BY '#{@password}';`
-
-      Rake::Task["db:schema:dump"].invoke
+      puts "Creating malambe database user..."
+      `mysql -u root --password=#{@rtpass} -e "GRANT ALL ON #{@database}.* TO #{@username}@localhost IDENTIFIED BY '#{@password}';"`
     end
 end
